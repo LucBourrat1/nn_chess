@@ -2,7 +2,7 @@ import chess
 import copy
 
 
-class MiniMax:
+class AlphaBeta:
     def __init__(self, board):
         self.board = copy.deepcopy(board)
         self.pieceSquareTable = [
@@ -46,7 +46,7 @@ class MiniMax:
                     scoreBlack += 900 + self.pieceSquareTable[i][j]
         return scoreWhite - scoreBlack
 
-    def minimax(self, depth, maximize):
+    def alpha_beta(self, depth, alpha, beta, maximize):
         self.counts += 1
         if self.board.is_checkmate():
             if self.board.turn == chess.WHITE:
@@ -57,30 +57,41 @@ class MiniMax:
             return 0
         if depth == 0:
             return self.eval()
+        legals = self.board.legal_moves
         if maximize:
             best_value = -99999
-            for move in self.board.legal_moves:
+            for move in legals:
                 self.board.push(move)
-                best_value = max(best_value, self.minimax(depth - 1, not maximize))
+                best_value = max(
+                    best_value, self.alpha_beta(depth - 1, alpha, beta, not maximize)
+                )
                 self.board.pop()
+                alpha = max(alpha, best_value)
+                if alpha >= beta:
+                    return best_value
             return best_value
         else:
             best_value = 99999
-            for move in self.board.legal_moves:
+            for move in legals:
                 self.board.push(move)
-                best_value = min(best_value, self.minimax(depth - 1, maximize))
+                best_value = min(
+                    best_value, self.alpha_beta(depth - 1, alpha, beta, not maximize)
+                )
                 self.board.pop()
+                beta = min(beta, best_value)
+                if beta <= alpha:
+                    return best_value
             return best_value
 
     def get_next_move(self, depth, maximize):
         legals = self.board.legal_moves
         best_move = None
-        best_value = -99999
+        best_value = -9999
         if not maximize:
-            best_value = 99999
+            best_value = 9999
         for move in legals:
             self.board.push(move)
-            value = self.minimax(depth - 1, not maximize)
+            value = self.alpha_beta(depth - 1, -10000, 10000, not maximize)
             self.board.pop()
             if maximize:
                 if value > best_value:
