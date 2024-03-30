@@ -1,0 +1,1 @@
+# Comprehension of NN usage for chess
