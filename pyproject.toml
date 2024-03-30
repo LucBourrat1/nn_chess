@@ -1,0 +1,4 @@
+[project]
+name = "nn_chess"
+version = "0.1"
+dependencies = ["chess"]
